@@ -7,8 +7,15 @@ export const ASSETS = {
   personajeIdle: "papitas-idle",
   personajeCaminar: "personaje-caminar",
   personajeSalto: "personaje-salto",
+
+  // Family
+  andres: "andres",
+  arabella: "arabella",
+
   proyectil: "proyectil",
   introVideo: "intro-video",
+
+  // Enemies
   enemySpider: "enemy-spider",
   enemyAvocado: "enemy-avocado",
 } as const;

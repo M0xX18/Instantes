@@ -12,6 +12,8 @@ export class BootScene extends Phaser.Scene {
     this.load.image(ASSETS.mapaIsla, "assets/images/mapa-isla.jpg");
     this.load.image(ASSETS.tileset, "assets/images/tileset-plataformas.png");
     this.load.tilemapTiledJSON(ASSETS.mapaMundo1, "assets/maps/mundo-1.json");
+
+    // Papitas
     this.load.spritesheet(ASSETS.personajeIdle, "assets/images/papitas-idle.png", {
       frameWidth: 139, frameHeight: 448,
     });
@@ -21,6 +23,27 @@ export class BootScene extends Phaser.Scene {
     this.load.spritesheet(ASSETS.personajeSalto, "assets/images/personaje-salto.png", {
       frameWidth: 64, frameHeight: 96,
     });
+
+    // Andres
+    this.load.spritesheet(
+      ASSETS.andres,
+      "assets/images/andres.png",
+      {
+        frameWidth: 139,
+        frameHeight: 448,
+      }
+    );
+ 
+    // Arabella
+    this.load.spritesheet(
+      ASSETS.arabella,
+      "assets/images/arabella.png",
+      {
+        frameWidth: 139,
+        frameHeight: 448,
+      }
+    );
+
     // Enemies
     this.load.spritesheet(ASSETS.enemySpider, "assets/images/araña.png", {
       frameWidth: 204, frameHeight: 306,

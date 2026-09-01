@@ -21,51 +21,59 @@ export class MapSelectScene extends Phaser.Scene {
   private activeZone: Zone | null = null;
   private zoneMarkers: Phaser.GameObjects.Text[] = [];
 
-  // El cursor utiliza el mismo tamaño visual que el Player.
-  private static readonly CURSOR_SCALE = 0.28;
+  private static readonly CURSOR_SCALE = 0.20;
 
   private readonly zones: Zone[] = [
     {
-      name: "ISLA DEL COMIENZO",
-      subtitle: "Primer nivel disponible",
+      name: "ISLA DEL NACIMIENTO",
+      subtitle: "Primer nivel",
       x: 342,
       y: 376,
-      radius: 82,
+      radius: 80,
       available: true,
-      previewTexture: ASSETS.mapaIsla,
       mapKey: "mundo-1",
     },
     {
-      name: "JUNGLA",
-      subtitle: "Proximamente",
+      name: "JUNGLA DE LA NIÑEZ",
+      subtitle: "Segundo nivel",
       x: 603,
       y: 185,
       radius: 120,
       available: false,
     },
     {
-      name: "RIOS",
-      subtitle: "Proximamente",
+      name: "RIOS DE LA ADOLESCENCIA",
+      subtitle: "Tercer nivel",
       x: 690,
       y: 300,
-      radius: 82,
+      radius: 100,
       available: false,
     },
     {
-      name: "CIUDAD",
-      subtitle: "Proximamente",
+      name: "CIUDAD DE LA ADULTEZ",
+      subtitle: "Cuarto nivel",
       x: 536,
       y: 475,
       radius: 130,
       available: false,
     },
     {
-      name: "PRADERA",
-      subtitle: "Proximamente",
+      name: "PRADERA DEL PRESENTE",
+      subtitle: "Quinto nivel",
       x: 752,
       y: 520,
       radius: 120,
       available: false,
+    },
+    {
+      name: "ISLA DEL FUTURO",
+      subtitle: "?",
+      x: 900,
+      y: 376,
+      radius: 80,
+      available: false,
+      previewTexture: ASSETS.mapaIsla,
+      // mapKey: "mundo-1",
     },
   ];
 
@@ -74,9 +82,7 @@ export class MapSelectScene extends Phaser.Scene {
   }
 
   create() {
-    // -------------------------------------------------------------------------
     // MAP
-    // -------------------------------------------------------------------------
 
     this.mapImage = this.add
       .image(
@@ -87,9 +93,7 @@ export class MapSelectScene extends Phaser.Scene {
       .setDisplaySize(GAME_WIDTH, 714)
       .setDepth(0);
 
-    // -------------------------------------------------------------------------
     // TITLE
-    // -------------------------------------------------------------------------
 
     this.add
       .text(

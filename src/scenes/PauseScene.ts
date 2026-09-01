@@ -29,7 +29,7 @@ export class PauseScene extends Phaser.Scene {
     const resume = this.makeButton(GAME_HEIGHT / 2 + 20, "Continuar", () => {
       this.closePause();
     });
-    this.makeButton(resume.y + 56, "Volver al título", () => {
+    this.makeButton(resume.y + 56, "Volver al mapa", () => {
       this.scene.stop("WorldScene");
       this.scene.stop();
       this.scene.start("TitleScene");

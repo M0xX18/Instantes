@@ -2,7 +2,6 @@ import Phaser from "phaser";
 
 export class InputManager {
   readonly cursors: Phaser.Types.Input.Keyboard.CursorKeys;
-
   readonly wasd: Record<
     "W" | "A" | "S" | "D",
     Phaser.Input.Keyboard.Key
@@ -10,6 +9,7 @@ export class InputManager {
 
   private readonly pauseKey: Phaser.Input.Keyboard.Key;
   private readonly shootKeys: Phaser.Input.Keyboard.Key[];
+  private readonly spaceKey: Phaser.Input.Keyboard.Key;
 
   constructor(scene: Phaser.Scene) {
     const keyboard = scene.input.keyboard;
@@ -42,6 +42,10 @@ export class InputManager {
       D: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
     };
 
+    this.spaceKey = keyboard.addKey(
+      Phaser.Input.Keyboard.KeyCodes.SPACE
+    );
+
     this.pauseKey = keyboard.addKey(
       Phaser.Input.Keyboard.KeyCodes.ESC
     );
@@ -73,7 +77,16 @@ export class InputManager {
   get jumpHeld(): boolean {
     return (
       this.cursors.up.isDown ||
-      this.wasd.W.isDown
+      this.wasd.W.isDown ||
+      this.spaceKey.isDown
+    );
+  }
+
+  get jumpPressed(): boolean {
+    return (
+      Phaser.Input.Keyboard.JustDown(this.cursors.up) ||
+      Phaser.Input.Keyboard.JustDown(this.wasd.W) ||
+      Phaser.Input.Keyboard.JustDown(this.spaceKey)
     );
   }
 
@@ -87,17 +100,6 @@ export class InputManager {
   get shootHeld(): boolean {
     return this.shootKeys.some(
       (key) => key.isDown
-    );
-  }
-
-  get jumpPressed(): boolean {
-    return (
-      Phaser.Input.Keyboard.JustDown(
-        this.cursors.up
-      ) ||
-      Phaser.Input.Keyboard.JustDown(
-        this.wasd.W
-      )
     );
   }
 
