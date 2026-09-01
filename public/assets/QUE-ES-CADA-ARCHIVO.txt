@@ -1,0 +1,59 @@
+Instantes — qué es cada archivo de assets
+==========================================
+
+Reemplaza estos archivos manteniendo el mismo nombre y carpeta.
+Phaser los carga desde public/assets (Vite los sirve tal cual).
+
+public/assets/images/
+  fondo-espacio.png
+      Fondo de la pantalla de título y de la intro. Debe ser espacio
+      (estrellas incluidas en la imagen). Recomendado 1280x720.
+
+  tileset-plataformas.png
+      Tileset para Tiled / Phaser. Cada tile mide 32x32.
+      Fila única, 8 tiles de izquierda a derecha:
+        0 vacío, 1 césped, 2 tierra, 3 plataforma de piedra, 4-7 reserva.
+      Edítalo en Aseprite y vuelve a enlazarlo en Tiled.
+
+  papitas-idle.png
+      Sprite sheet de Papitas quieta. 4 fotogramas de 32x48 (Aseprite).
+  personaje-caminar.png
+      Sprite sheet caminando. 4 fotogramas de 32x48.
+  personaje-salto.png
+      Sprite sheet de salto. 2 fotogramas de 32x48.
+
+public/assets/video/
+  intro.mp4
+      Vídeo corto que se reproduce después de pulsar JUGAR
+      (cuando ya solo queda el fondo). Formato MP4/H.264 recomendado.
+      Ahora está vacío a propósito: hasta que lo pongas, el juego usa
+      una animación de fallback.
+
+public/assets/maps/
+  mundo-1.json
+      Mapa exportado de Tiled (JSON). Ábrelo en Tiled, edita y exporta
+      otra vez sobre este archivo.
+  mundo-1.tmx
+      Proyecto nativo de Tiled (mismo mapa). Conveniente para editar.
+
+Flujo del juego
+---------------
+1. Título (fondo + INSTANTES + subtítulo + JUGAR)
+2. Se oculta el texto; queda el fondo
+3. Vídeo / animación de intro
+4. Mundo 1: plataformas 2D, mover y saltar, ESC pausa
+
+
+
+
+
+
+Aguacate
+Cubios
+Brocoli
+Jugo guayaba
+
+Arañas
+Bichos
+
+Bosa, Soacha
