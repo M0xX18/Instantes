@@ -1,6 +1,7 @@
 ﻿import Phaser from "phaser";
 import { ASSETS } from "../config/assets";
 import { GAME_HEIGHT, GAME_WIDTH } from "../config/game";
+import { getLevelSceneKey } from "../config/levels";
 import {
   LevelProgress,
   type LevelKey,
@@ -522,12 +523,14 @@ export class MapSelectScene extends Phaser.Scene {
     this.cameras.main.once(
       "camerafadeoutcomplete",
       () => {
+        const worldKey =
+          this.activeZone?.mapKey ??
+          "mundo-1";
+
         this.scene.start(
-          "WorldScene",
+          getLevelSceneKey(worldKey),
           {
-            worldKey:
-              this.activeZone?.mapKey ??
-              "mundo-1",
+            worldKey,
           }
         );
       }

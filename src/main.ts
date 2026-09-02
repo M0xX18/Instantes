@@ -8,6 +8,7 @@ import { PauseScene } from "./scenes/PauseScene";
 import { MapSelectScene } from "./scenes/MapSelectScene";
 import { WinScene } from "./scenes/WinScene";
 import { GameOverScene } from "./scenes/GameOverScene";
+import { CinematicScene } from "./scenes/CinematicScene";
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -31,7 +32,7 @@ const config: Phaser.Types.Core.GameConfig = {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
-  scene: [BootScene, TitleScene, IntroScene, MapSelectScene, WorldScene, PauseScene, WinScene, GameOverScene],
+  scene: [BootScene, TitleScene, IntroScene, MapSelectScene, WorldScene, CinematicScene, PauseScene, WinScene, GameOverScene],
 };
 
 new Phaser.Game(config);

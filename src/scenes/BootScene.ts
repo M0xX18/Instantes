@@ -8,10 +8,20 @@ export class BootScene extends Phaser.Scene {
 
   preload() {
     this.load.image(ASSETS.fondoEspacio, "assets/images/fondo-espacio.png");
+    this.load.image(ASSETS.fondoIsla, "assets/images/fondo-isla.png");
+    this.load.image(ASSETS.fondoJungla, "assets/images/fondo-jungla.png");
+    this.load.image(ASSETS.fondoRiosCamino, "assets/images/fondo-rios-camino.png");
+    this.load.image(ASSETS.fondoRios, "assets/images/fondo-rios.png");
+    this.load.image(ASSETS.fondoCiudad, "assets/images/fondo-ciudad.png");
+    this.load.image(ASSETS.fondoPradera, "assets/images/fondo-pradera.png");
     this.load.image(ASSETS.mapaZonas, "assets/images/mapa.jpg");
     this.load.image(ASSETS.mapaIsla, "assets/images/mapa-isla.jpg");
     this.load.image(ASSETS.tileset, "assets/images/tileset-plataformas.png");
     this.load.tilemapTiledJSON(ASSETS.mapaMundo1, "assets/maps/mundo-1.json");
+    this.load.tilemapTiledJSON(ASSETS.mapaMundo2, "assets/maps/mundo-2.json");
+    this.load.tilemapTiledJSON(ASSETS.mapaMundo3, "assets/maps/mundo-3.json");
+    this.load.tilemapTiledJSON(ASSETS.mapaMundo4, "assets/maps/mundo-4.json");
+    this.load.tilemapTiledJSON(ASSETS.mapaMundo5, "assets/maps/mundo-5.json");
 
     // Papitas
     this.load.spritesheet(ASSETS.personajeIdle, "assets/images/papitas-idle.png", {
@@ -29,7 +39,6 @@ export class BootScene extends Phaser.Scene {
         frameHeight: 927,
       }
     );
- 
     // Arabella
     this.load.spritesheet(
       ASSETS.arabella,
@@ -37,6 +46,14 @@ export class BootScene extends Phaser.Scene {
       {
         frameWidth: 177,
         frameHeight: 351,
+      }
+    );
+    this.load.spritesheet(
+      ASSETS.victoriaBeso,
+      "assets/images/victoria-beso-sprites.png",
+      {
+        frameWidth: 512,
+        frameHeight: 512,
       }
     );
 
@@ -47,6 +64,10 @@ export class BootScene extends Phaser.Scene {
     this.load.spritesheet(ASSETS.enemyAvocado, "assets/images/aguacate.png", {
       frameWidth: 204, frameHeight: 306,
     });
+    this.load.image(
+      ASSETS.enemyRiverWorm,
+      "assets/images/enemigo-gusano-rio.png"
+    );
 
     // Collectibles y proyectiles de poderes.
     this.load.image(ASSETS.itemBrocoli, "assets/images/item-brocoli.png");

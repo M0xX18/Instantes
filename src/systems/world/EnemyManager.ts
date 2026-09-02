@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { Enemy } from "../../entities/Enemy";
-import { WORLD_1_ENEMIES } from "../../data/worldData";
+import type { EnemyDefinition } from "../../data/levels/types";
 
 export class EnemyManager {
   private readonly scene: Phaser.Scene;
@@ -18,7 +18,8 @@ export class EnemyManager {
    /* Crea todos los enemigos definidos para el mundo.*/
   spawn(
     map: Phaser.Tilemaps.Tilemap,
-    groundLayer: Phaser.Tilemaps.TilemapLayer
+    groundLayer: Phaser.Tilemaps.TilemapLayer,
+    definitions: readonly EnemyDefinition[]
   ) {
     // Evita duplicar enemigos si spawn() se llama nuevamente.
     this.clear();
@@ -28,7 +29,8 @@ export class EnemyManager {
       row,
       type,
       patrolRange,
-    } of WORLD_1_ENEMIES) {
+      speech,
+    } of definitions) {
       const x =
         col * map.tileWidth +
         map.tileWidth / 2;
@@ -45,7 +47,8 @@ export class EnemyManager {
         y,
         type,
         groundLayer,
-        patrolRange
+        patrolRange,
+        speech
       );
 
       this.enemies.add(enemy);

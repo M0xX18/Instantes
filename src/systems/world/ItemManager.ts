@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { Collectible } from "../../entities/Collectible";
-import { WORLD_1_ITEMS } from "../../data/worldData";
+import type { ItemDefinition } from "../../data/levels/types";
 
 export class ItemManager {
   private readonly group: Phaser.Physics.Arcade.Group;
@@ -15,9 +15,10 @@ export class ItemManager {
 
   spawn(
     scene: Phaser.Scene,
-    map: Phaser.Tilemaps.Tilemap
+    map: Phaser.Tilemaps.Tilemap,
+    definitions: readonly ItemDefinition[]
   ) {
-    for (const item of WORLD_1_ITEMS) {
+    for (const item of definitions) {
       const collectible = new Collectible(
         scene,
         item.col * map.tileWidth +

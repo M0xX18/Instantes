@@ -7,8 +7,16 @@ import { Projectile } from "../entities/Projectile";
 import { Collectible } from "../entities/Collectible";
 
 import { ASSETS } from "../config/assets";
-import { WORLD_TIME_LIMIT } from "../config/game";
-import { WORLD_CONFIG } from "../config/world";
+import {
+  GAME_HEIGHT,
+  GAME_WIDTH,
+  WORLD_TIME_LIMIT,
+} from "../config/game";
+import {
+  isPlayableLevel,
+  PLAYABLE_LEVELS,
+} from "../config/levels";
+import type { LevelDefinition } from "../data/levels/types";
 import {
   ITEM_EFFECTS,
   POWER_LABELS,
@@ -18,6 +26,7 @@ import {
 
 import { InputManager } from "../systems/input/InputManager";
 import { WorldHUD } from "../systems/ui/WorldHUD";
+import { DialogueOverlay } from "../systems/ui/DialogueOverlay";
 import { EnemyManager } from "../systems/world/EnemyManager";
 import { ProjectileManager } from "../systems/world/ProjectileManager";
 import { ItemManager } from "../systems/world/ItemManager";
@@ -44,10 +53,14 @@ export class WorldScene extends Phaser.Scene {
   private fireDebuffTimer?: Phaser.Time.TimerEvent;
 
   private worldKey: LevelKey = "mundo-1";
+  private level!: LevelDefinition;
   private timerMs = 0;
   private timerDone = false;
   private paused = false;
   private fallDeathY = 0;
+  private introDialogueActive = false;
+  private dialogue?: DialogueOverlay;
+  private dialogueResumeTimer?: Phaser.Time.TimerEvent;
 
   constructor() {
     super("WorldScene");
@@ -67,11 +80,25 @@ export class WorldScene extends Phaser.Scene {
     this.slowDebuffTimer = undefined;
     this.fireDebuffTimer = undefined;
     this.fallDeathY = 0;
+    this.introDialogueActive = false;
+    this.dialogue = undefined;
+    this.dialogueResumeTimer = undefined;
   }
 
   create() {
+    // Mundo 6 es una secuencia final, nunca un nivel controlable.
+    if (!isPlayableLevel(this.worldKey)) {
+      this.scene.start("CinematicScene", {
+        worldKey: this.worldKey,
+      });
+      return;
+    }
+
+    this.level = PLAYABLE_LEVELS[this.worldKey];
+
     // Puede quedar pausado después de completar o perder una ejecución anterior.
     this.physics.world.resume();
+    this.physics.world.gravity.y = this.level.gravityY;
 
     // Sistemas.
     this.inputManager = new InputManager(this);
@@ -95,6 +122,10 @@ export class WorldScene extends Phaser.Scene {
     // HUD.
     this.hud.create(this.timerMs);
 
+    if (this.worldKey === "mundo-1") {
+      this.showIntroDialogue();
+    }
+
     this.cameras.main.fadeIn(
       500,
       2,
@@ -116,7 +147,8 @@ export class WorldScene extends Phaser.Scene {
   ) {
     if (
       this.paused ||
-      this.timerDone
+      this.timerDone ||
+      this.introDialogueActive
     ) {
       return;
     }
@@ -177,12 +209,47 @@ export class WorldScene extends Phaser.Scene {
   }
 
   // ---------------------------------------------------------------------------
+  // INTRO DIALOGUE
+  // ---------------------------------------------------------------------------
+
+  private showIntroDialogue() {
+    this.introDialogueActive = true;
+    this.physics.world.pause();
+
+    this.dialogue = new DialogueOverlay(
+      this,
+      {
+        speaker: "ANDRÉS",
+        pages: [
+          "Papitas, todo viaje comienza con un primer paso.",
+          "Esta isla guarda el inicio de nuestra historia.",
+          "Recórrela con calma y encuéntranos al final.",
+        ],
+        onDismiss: () => {
+          this.dialogue = undefined;
+
+          // Evita que la misma tecla usada para cerrar el diálogo active una
+          // acción del juego durante ese instante.
+          this.dialogueResumeTimer =
+            this.time.delayedCall(
+              120,
+              () => {
+                this.introDialogueActive = false;
+                this.physics.world.resume();
+              }
+            );
+        },
+      }
+    );
+  }
+
+  // ---------------------------------------------------------------------------
   // MAP
   // ---------------------------------------------------------------------------
 
   private createMap(): Phaser.Tilemaps.Tilemap {
     const map = this.make.tilemap({
-      key: ASSETS.mapaMundo1,
+      key: this.level.mapKey,
     });
 
     const tiles = map.addTilesetImage(
@@ -252,26 +319,34 @@ export class WorldScene extends Phaser.Scene {
   ) {
     const bg = this.add
       .image(
-        0,
-        0,
-        ASSETS.fondoEspacio
+        GAME_WIDTH / 2,
+        GAME_HEIGHT / 2,
+        this.level.background
       )
-      .setOrigin(0, 0);
+      .setScrollFactor(0)
+      .setDepth(-20);
 
     bg.setDisplaySize(
-      map.widthInPixels,
-      map.heightInPixels
+      GAME_WIDTH,
+      GAME_HEIGHT
     );
 
-    bg
-      .setDepth(-10)
-      .setAlpha(0.45)
-      .setScrollFactor(0.15);
-
-    this.addStars(
-      map.widthInPixels,
-      map.heightInPixels
-    );
+    // En Ríos, la cascada sólo entra en cámara al alcanzar el último tramo.
+    if (this.level.finalBackground) {
+      this.add
+        .image(
+          map.widthInPixels -
+            GAME_WIDTH / 2,
+          GAME_HEIGHT / 2,
+          this.level.finalBackground
+        )
+        .setDisplaySize(
+          GAME_WIDTH,
+          GAME_HEIGHT
+        )
+        .setScrollFactor(1, 0)
+        .setDepth(-19);
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -282,11 +357,11 @@ export class WorldScene extends Phaser.Scene {
     map: Phaser.Tilemaps.Tilemap
   ) {
     const x =
-      WORLD_CONFIG.playerSpawnX;
+      this.level.playerSpawnX;
 
     const y =
       map.heightInPixels -
-      WORLD_CONFIG.playerSpawnYOffset;
+      this.level.playerSpawnYOffset;
 
     this.player = new Player(
       this,
@@ -337,14 +412,19 @@ export class WorldScene extends Phaser.Scene {
   ) {
     this.enemyManager.spawn(
       map,
-      this.ground
+      this.ground,
+      this.level.enemies
     );
   }
 
   private createItems(
     map: Phaser.Tilemaps.Tilemap
   ) {
-    this.itemManager.spawn(this, map);
+    this.itemManager.spawn(
+      this,
+      map,
+      this.level.items
+    );
   }
 
   private createItemCollisions() {
@@ -525,12 +605,12 @@ export class WorldScene extends Phaser.Scene {
     map: Phaser.Tilemaps.Tilemap
   ) {
     const x =
-      WORLD_CONFIG.goalTileX *
+      this.level.goalTileX *
         map.tileWidth +
       map.tileWidth / 2;
 
     const y =
-      WORLD_CONFIG.goalTileY *
+      this.level.goalTileY *
       map.tileHeight;
 
     this.family = new Family(
@@ -568,46 +648,6 @@ export class WorldScene extends Phaser.Scene {
       this.goalSensor,
       () => this.triggerWin()
     );
-  }
-
-  // ---------------------------------------------------------------------------
-  // STARS
-  // ---------------------------------------------------------------------------
-
-  private addStars(
-    width: number,
-    height: number
-  ) {
-    const random =
-      new Phaser.Math.RandomDataGenerator([
-        "instantes-level-1",
-      ]);
-
-    for (let i = 0; i < 90; i++) {
-      const star = this.add.circle(
-        random.between(
-          0,
-          width
-        ),
-        random.between(
-          40,
-          height - 120
-        ),
-        random.realInRange(
-          0.6,
-          1.7
-        ),
-        0xe8e7ff,
-        random.realInRange(
-          0.15,
-          0.55
-        )
-      );
-
-      star
-        .setDepth(-5)
-        .setScrollFactor(0.32);
-    }
   }
 
   // ---------------------------------------------------------------------------
@@ -720,6 +760,8 @@ export class WorldScene extends Phaser.Scene {
   // ---------------------------------------------------------------------------
 
   private cleanup() {
+    this.dialogue?.destroy();
+    this.dialogueResumeTimer?.remove(false);
     this.slowDebuffTimer?.remove(false);
     this.fireDebuffTimer?.remove(false);
     this.hud?.destroy();

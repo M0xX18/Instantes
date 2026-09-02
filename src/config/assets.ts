@@ -1,15 +1,26 @@
 export const ASSETS = {
   fondoEspacio: "fondo-espacio",
+  fondoIsla: "fondo-isla",
+  fondoJungla: "fondo-jungla",
+  fondoRiosCamino: "fondo-rios-camino",
+  fondoRios: "fondo-rios",
+  fondoCiudad: "fondo-ciudad",
+  fondoPradera: "fondo-pradera",
   mapaZonas: "mapa-zonas",
   mapaIsla: "mapa-isla",
   tileset: "tileset-plataformas",
   mapaMundo1: "mundo-1",
+  mapaMundo2: "mundo-2",
+  mapaMundo3: "mundo-3",
+  mapaMundo4: "mundo-4",
+  mapaMundo5: "mundo-5",
   personajeIdle: "papitas-idle",
   personajeCaminar: "papitas-caminar",
 
   // Family
   andres: "andres",
   arabella: "arabella",
+  victoriaBeso: "victoria-beso",
 
   proyectil: "proyectil",
   proyectilPapa: "proyectil-papa",
@@ -25,4 +36,5 @@ export const ASSETS = {
   // Enemies
   enemySpider: "enemy-spider",
   enemyAvocado: "enemy-avocado",
+  enemyRiverWorm: "enemy-river-worm",
 } as const;
