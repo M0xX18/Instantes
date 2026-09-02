@@ -1,14 +1,21 @@
 import Phaser from "phaser";
 import { GAME_WIDTH, GAME_HEIGHT } from "../config/game";
+import type { LevelKey } from "../systems/progression/LevelProgress";
 
 export class WinScene extends Phaser.Scene {
   constructor() {
     super("WinScene");
   }
 
-  create(data: { worldKey: string; timeMs: number }) {
+  create(data: {
+    worldKey: LevelKey;
+    timeMs: number;
+    unlockedLevel?: LevelKey | null;
+  }) {
     const timeMs = data?.timeMs ?? 0;
     const worldKey = data?.worldKey ?? "mundo-1";
+    const unlockedLevel =
+      data?.unlockedLevel ?? null;
 
     // Fondo oscuro con tinte verde
     const bg = this.add.graphics();
@@ -50,7 +57,13 @@ export class WinScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     // Mensaje motivacional segun tiempo
-    const msg = secs < 30 ? "VELOCIDAD DE LUZ!" : secs < 60 ? "BUEN TRABAJO!" : "LO LOGRASTE!";
+    const msg = unlockedLevel
+      ? `NUEVA ZONA: ${unlockedLevel.toUpperCase()}`
+      : secs < 30
+        ? "VELOCIDAD DE LUZ!"
+        : secs < 60
+          ? "BUEN TRABAJO!"
+          : "LO LOGRASTE!";
     this.add.text(GAME_WIDTH / 2, py + 155, msg, {
       fontFamily: '"Press Start 2P", monospace',
       fontSize: "11px",

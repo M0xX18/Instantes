@@ -1,12 +1,16 @@
 ﻿import Phaser from "phaser";
 import { GAME_WIDTH, GAME_HEIGHT } from "../config/game";
+import type { LevelKey } from "../systems/progression/LevelProgress";
 
 export class GameOverScene extends Phaser.Scene {
   constructor() {
     super("GameOverScene");
   }
 
-  create(data: { worldKey: string; reason?: "tiempo" | "enemigo" }) {
+  create(data: {
+    worldKey: LevelKey;
+    reason?: "tiempo" | "enemigo" | "vacio";
+  }) {
     const worldKey = data?.worldKey ?? "mundo-1";
     const reason = data?.reason ?? "tiempo";
 
@@ -28,10 +32,19 @@ export class GameOverScene extends Phaser.Scene {
     panel.lineStyle(2, 0xff4444, 0.7);
     panel.strokeRoundedRect(px, py, panelW, panelH, 12);
 
-    const title = reason === "enemigo" ? "HAS MUERTO" : "TIEMPO AGOTADO";
-    const subtitle = reason === "enemigo"
-      ? "Un enemigo acabo contigo..."
-      : "No llegaste a la meta a tiempo";
+    const title =
+      reason === "enemigo"
+        ? "HAS MUERTO"
+        : reason === "vacio"
+          ? "CAISTE AL VACIO"
+          : "TIEMPO AGOTADO";
+
+    const subtitle =
+      reason === "enemigo"
+        ? "Un enemigo acabo contigo..."
+        : reason === "vacio"
+          ? "Calcula mejor el siguiente salto"
+          : "No llegaste a la meta a tiempo";
 
     const titleText = this.add.text(GAME_WIDTH / 2, py + 52, title, {
       fontFamily: '"Press Start 2P", monospace',

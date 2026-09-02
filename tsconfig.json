@@ -13,5 +13,5 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "src/entities/entities", "src/entities/Projectile.ts"]
+  "include": ["src"]
 }

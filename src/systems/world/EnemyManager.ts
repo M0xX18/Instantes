@@ -1,15 +1,18 @@
 import Phaser from "phaser";
 import { Enemy } from "../../entities/Enemy";
-import { Player } from "../../entities/Player";
-import { Projectile } from "../../entities/Projectile";
 import { WORLD_1_ENEMIES } from "../../data/worldData";
 
 export class EnemyManager {
   private readonly scene: Phaser.Scene;
   private readonly enemies = new Set<Enemy>();
+  private readonly group: Phaser.Physics.Arcade.Group;
+  private groundCollider?: Phaser.Physics.Arcade.Collider;
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
+    this.group = scene.physics.add.group({
+      runChildUpdate: false,
+    });
   }
 
    /* Crea todos los enemigos definidos para el mundo.*/
@@ -30,89 +33,58 @@ export class EnemyManager {
         col * map.tileWidth +
         map.tileWidth / 2;
 
-      // El enemigo aparece en la parte superior del tile.
+      // Aparece un tile por encima y aterriza sobre la plataforma durante
+      // el fundido de entrada, sin comenzar incrustado en su colisión.
       const y =
-        row * map.tileHeight;
+        row * map.tileHeight -
+        map.tileHeight;
 
       const enemy = new Enemy(
         this.scene,
         x,
         y,
         type,
+        groundLayer,
         patrolRange
       );
 
-      // Colisión enemigo ↔ suelo.
+      this.enemies.add(enemy);
+      this.group.add(enemy);
+
+      enemy.once(
+        Phaser.GameObjects.Events.DESTROY,
+        () => {
+          this.enemies.delete(enemy);
+
+          if (this.scene.sys.isActive()) {
+            this.group.remove(enemy);
+          }
+        }
+      );
+    }
+
+    // Un solo collider gestiona todos los enemigos contra el escenario.
+    this.groundCollider =
       this.scene.physics.add.collider(
-        enemy,
+        this.group,
         groundLayer
       );
-
-      this.enemies.add(enemy);
-    }
   }
 
-  /**
-   * Actualiza enemigos y gestiona:
-   * - Player ↔ Enemy
-   * - Projectile ↔ Enemy
-   */
-  update(
-    player: Player,
-    projectiles: readonly Projectile[],
-    onPlayerHit: () => void
-  ) {
+  update() {
     for (const enemy of this.enemies) {
-      // Si ya murió o fue destruido, no procesamos nada.
       if (!enemy.active || enemy.isDead()) {
         continue;
       }
 
-      // Player toca enemigo.
-      this.scene.physics.overlap(
-        player,
-        enemy,
-        onPlayerHit
-      );
-
-      // Proyectiles golpean enemigo.
-      for (const projectile of projectiles) {
-        if (!projectile.active) {
-          continue;
-        }
-
-        this.scene.physics.overlap(
-          projectile,
-          enemy,
-          () => {
-            // Evita ejecutar dos veces el impacto.
-            if (
-              !projectile.active ||
-              !enemy.active ||
-              enemy.isDead()
-            ) {
-              return;
-            }
-
-            projectile.destroy();
-            enemy.die();
-          }
-        );
-      }
-
-      // Actualizamos IA / movimiento del enemigo.
       enemy.update();
     }
 
-    // Limpiamos referencias a enemigos destruidos.
     this.removeInactive();
   }
 
-  /**
-   * Devuelve una copia del listado de enemigos.
-   */
-  getAll(): Enemy[] {
-    return Array.from(this.enemies);
+  getGroup(): Phaser.Physics.Arcade.Group {
+    return this.group;
   }
 
   /**
@@ -130,12 +102,19 @@ export class EnemyManager {
    * Destruye todos los enemigos.
    */
   clear() {
-    for (const enemy of this.enemies) {
+    this.groundCollider?.destroy();
+    this.groundCollider = undefined;
+
+    for (const enemy of Array.from(this.enemies)) {
       if (enemy.active) {
         enemy.destroy();
       }
     }
 
     this.enemies.clear();
+
+    if (this.scene.sys.isActive()) {
+      this.group.clear(false, false);
+    }
   }
 }

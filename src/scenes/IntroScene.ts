@@ -16,9 +16,14 @@ export class IntroScene extends Phaser.Scene {
   }
 
   private playIntro() {
-    const video = this.add.video(GAME_WIDTH / 2, GAME_HEIGHT / 2);
-    video.setOrigin(0.5);
-    video.setDepth(5);
+    const video = this.add
+      .video(
+        GAME_WIDTH / 2,
+        GAME_HEIGHT / 2
+      )
+      .setOrigin(0.5)
+      .setDepth(5)
+      .setVisible(false);
 
     let finished = false;
     let usingFallback = false;
@@ -42,9 +47,36 @@ export class IntroScene extends Phaser.Scene {
     video.once("unsupported", fallback);
     video.once("error", fallback);
 
+    // El video estaba usando su resolución nativa (por ejemplo 1920x1080)
+    // dentro de un juego de 1280x720. Esperamos al primer frame para conocer
+    // su tamaño real y lo ajustamos con contain: nunca se recorta ni deforma.
+    video.once(
+      Phaser.GameObjects.Events.VIDEO_CREATED,
+      (
+        _video: Phaser.GameObjects.Video,
+        sourceWidth: number,
+        sourceHeight: number
+      ) => {
+        const containScale = Math.min(
+          GAME_WIDTH / sourceWidth,
+          GAME_HEIGHT / sourceHeight
+        );
+
+        video
+          .setDisplaySize(
+            Math.round(
+              sourceWidth * containScale
+            ),
+            Math.round(
+              sourceHeight * containScale
+            )
+          )
+          .setVisible(true);
+      }
+    );
+
     try {
       video.loadURL("assets/video/intro.mp4", true);
-      // video.setDisplaySize(640, 360);
       const playResult: unknown = video.play(false);
       if (playResult instanceof Promise) {
         playResult.catch(() => fallback());

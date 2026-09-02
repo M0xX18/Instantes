@@ -1,6 +1,11 @@
 ﻿import Phaser from "phaser";
 import { ASSETS } from "../config/assets";
 import { GAME_HEIGHT, GAME_WIDTH } from "../config/game";
+import {
+  LevelProgress,
+  type LevelKey,
+  type LevelStatus,
+} from "../systems/progression/LevelProgress";
 
 type Zone = {
   name: string;
@@ -8,9 +13,8 @@ type Zone = {
   x: number;
   y: number;
   radius: number;
-  available: boolean;
   previewTexture?: string;
-  mapKey?: string;
+  mapKey: LevelKey;
 };
 
 export class MapSelectScene extends Phaser.Scene {
@@ -19,9 +23,8 @@ export class MapSelectScene extends Phaser.Scene {
   private status!: Phaser.GameObjects.Text;
   private playButton!: Phaser.GameObjects.Text;
   private activeZone: Zone | null = null;
-  private zoneMarkers: Phaser.GameObjects.Text[] = [];
 
-  private static readonly CURSOR_SCALE = 0.20;
+  private static readonly CURSOR_SCALE = 0.2;
 
   private readonly zones: Zone[] = [
     {
@@ -30,7 +33,6 @@ export class MapSelectScene extends Phaser.Scene {
       x: 342,
       y: 376,
       radius: 80,
-      available: true,
       mapKey: "mundo-1",
     },
     {
@@ -39,7 +41,7 @@ export class MapSelectScene extends Phaser.Scene {
       x: 603,
       y: 185,
       radius: 120,
-      available: false,
+      mapKey: "mundo-2",
     },
     {
       name: "RIOS DE LA ADOLESCENCIA",
@@ -47,7 +49,7 @@ export class MapSelectScene extends Phaser.Scene {
       x: 690,
       y: 300,
       radius: 100,
-      available: false,
+      mapKey: "mundo-3",
     },
     {
       name: "CIUDAD DE LA ADULTEZ",
@@ -55,7 +57,7 @@ export class MapSelectScene extends Phaser.Scene {
       x: 536,
       y: 475,
       radius: 130,
-      available: false,
+      mapKey: "mundo-4",
     },
     {
       name: "PRADERA DEL PRESENTE",
@@ -63,7 +65,7 @@ export class MapSelectScene extends Phaser.Scene {
       x: 752,
       y: 520,
       radius: 120,
-      available: false,
+      mapKey: "mundo-5",
     },
     {
       name: "ISLA DEL FUTURO",
@@ -71,9 +73,8 @@ export class MapSelectScene extends Phaser.Scene {
       x: 900,
       y: 376,
       radius: 80,
-      available: false,
       previewTexture: ASSETS.mapaIsla,
-      // mapKey: "mundo-1",
+      mapKey: "mundo-6",
     },
   ];
 
@@ -141,11 +142,8 @@ export class MapSelectScene extends Phaser.Scene {
     this.createPlayButton();
     this.createZoneTargets();
 
-    // Estado inicial.
-    this.activeZone = null;
-    this.mapImage.setTexture(ASSETS.mapaZonas);
-    this.status.setText("Elige una zona del mapa");
-    this.updatePlayButton(null);
+    // Mundo 1 siempre es el punto de partida y queda seleccionado al entrar.
+    this.selectZone(this.zones[0], false);
 
     this.cameras.main.fadeIn(500, 2, 1, 10);
   }
@@ -155,18 +153,35 @@ export class MapSelectScene extends Phaser.Scene {
   // ---------------------------------------------------------------------------
 
   private createZoneMarkers() {
-    this.zoneMarkers = [];
+    for (const [index, zone] of this.zones.entries()) {
+      const zoneStatus =
+        this.getZoneStatus(zone);
 
-    for (const zone of this.zones) {
-      const color = zone.available
-        ? "#ffd67e"
-        : "#8899aa";
+      const completed =
+        zoneStatus === "completed";
+
+      const playable =
+        this.isZonePlayable(zoneStatus);
+
+      const next = zoneStatus === "next";
+
+      const color = completed
+        ? "#62e6a7"
+        : playable
+          ? "#ffd67e"
+          : next
+            ? "#ffb061"
+            : "#657587";
 
       const marker = this.add
         .text(
           zone.x,
           zone.y - 14,
-          "?",
+          completed
+            ? "✓"
+            : playable || next
+              ? `${index + 1}`
+              : "?",
           {
             fontFamily: '"Press Start 2P", monospace',
             fontSize: "22px",
@@ -178,8 +193,8 @@ export class MapSelectScene extends Phaser.Scene {
         .setOrigin(0.5)
         .setDepth(4);
 
-      // Las zonas disponibles tienen una animación de pulso.
-      if (zone.available) {
+      // Sólo la zona jugable actual y la siguiente llaman la atención.
+      if (!completed && (playable || next)) {
         this.tweens.add({
           targets: marker,
           scaleX: 1.15,
@@ -190,8 +205,6 @@ export class MapSelectScene extends Phaser.Scene {
           ease: "Sine.InOut",
         });
       }
-
-      this.zoneMarkers.push(marker);
     }
   }
 
@@ -226,7 +239,7 @@ export class MapSelectScene extends Phaser.Scene {
             end: 3,
           }
         ),
-        frameRate: 8,
+        frameRate: 6,
         repeat: -1,
       });
     }
@@ -247,17 +260,6 @@ export class MapSelectScene extends Phaser.Scene {
       .setOrigin(0.5, 0.5);
 
     this.cursor.play("map-idle");
-
-    // Pequeño movimiento vertical para que el cursor no parezca estático.
-    this.tweens.add({
-      targets: this.cursor,
-      y: "-=4",
-      duration: 650,
-      yoyo: true,
-      repeat: -1,
-      ease: "Sine.InOut",
-      paused: true,
-    });
   }
 
   // ---------------------------------------------------------------------------
@@ -288,7 +290,14 @@ export class MapSelectScene extends Phaser.Scene {
       });
 
     this.playButton.on("pointerover", () => {
-      if (this.activeZone?.available) {
+      if (
+        this.activeZone &&
+        this.isZonePlayable(
+          this.getZoneStatus(
+            this.activeZone
+          )
+        )
+      ) {
         this.playButton.setColor("#ffd67e");
       }
     });
@@ -298,7 +307,14 @@ export class MapSelectScene extends Phaser.Scene {
     });
 
     this.playButton.on("pointerup", () => {
-      if (this.activeZone?.available) {
+      if (
+        this.activeZone &&
+        this.isZonePlayable(
+          this.getZoneStatus(
+            this.activeZone
+          )
+        )
+      ) {
         this.startSelectedZone();
       }
     });
@@ -310,6 +326,14 @@ export class MapSelectScene extends Phaser.Scene {
 
   private createZoneTargets() {
     for (const zone of this.zones) {
+      const zoneStatus =
+        this.getZoneStatus(zone);
+
+      // Las zonas futuras ni siquiera reciben eventos del mouse.
+      if (zoneStatus === "locked") {
+        continue;
+      }
+
       // Área invisible de interacción.
       const target = this.add
         .circle(
@@ -331,7 +355,11 @@ export class MapSelectScene extends Phaser.Scene {
       target.on("pointerup", () => {
         this.selectZone(zone);
 
-        if (zone.available) {
+        if (
+          this.isZonePlayable(
+            zoneStatus
+          )
+        ) {
           this.startSelectedZone();
         }
       });
@@ -342,7 +370,17 @@ export class MapSelectScene extends Phaser.Scene {
   // SELECT ZONE
   // ---------------------------------------------------------------------------
 
-  private selectZone(zone: Zone) {
+  private selectZone(
+    zone: Zone,
+    animate = true
+  ) {
+    const zoneStatus =
+      this.getZoneStatus(zone);
+
+    if (zoneStatus === "locked") {
+      return;
+    }
+
     this.activeZone = zone;
 
     // Si existe preview, lo mostramos.
@@ -353,7 +391,9 @@ export class MapSelectScene extends Phaser.Scene {
 
     // Texto de estado.
     this.status.setText(
-      `${zone.name}\n${zone.subtitle}`
+      zoneStatus === "next"
+        ? `${zone.name}\n${zone.subtitle}\nCOMPLETA LA ZONA ANTERIOR`
+        : `${zone.name}\n${zone.subtitle}`
     );
 
     this.updatePlayButton(zone);
@@ -363,6 +403,15 @@ export class MapSelectScene extends Phaser.Scene {
     // -------------------------------------------------------------------------
 
     this.cursor.setAlpha(1);
+
+    if (!animate) {
+      this.cursor
+        .setPosition(zone.x, zone.y)
+        .setFlipX(false)
+        .play("map-idle", true);
+
+      return;
+    }
 
     // Cancelamos cualquier movimiento anterior.
     this.tweens.killTweensOf(this.cursor);
@@ -377,20 +426,35 @@ export class MapSelectScene extends Phaser.Scene {
       this.cursor.setFlipX(false);
     }
 
+    const distance =
+      Phaser.Math.Distance.Between(
+        this.cursor.x,
+        this.cursor.y,
+        zone.x,
+        zone.y
+      );
+
+    const travelDuration =
+      Phaser.Math.Clamp(
+        distance * 3.2,
+        850,
+        1600
+      );
+
     this.tweens.add({
       targets: this.cursor,
       x: zone.x,
-      y: zone.y + 4,
-      duration: 380,
-      ease: "Sine.Out",
+      y: zone.y,
+      duration: travelDuration,
+      ease: "Sine.InOut",
       onComplete: () => {
         this.cursor.play("map-idle", true);
 
         // Pequeño rebote al llegar.
         this.tweens.add({
           targets: this.cursor,
-          y: zone.y,
-          duration: 140,
+          y: zone.y - 4,
+          duration: 180,
           yoyo: true,
           ease: "Sine.Out",
         });
@@ -412,7 +476,10 @@ export class MapSelectScene extends Phaser.Scene {
       return;
     }
 
-    if (zone.available) {
+    const zoneStatus =
+      this.getZoneStatus(zone);
+
+    if (this.isZonePlayable(zoneStatus)) {
       this.playButton
         .setText("JUGAR ESTA ZONA")
         .setColor("#fff5d6")
@@ -422,7 +489,7 @@ export class MapSelectScene extends Phaser.Scene {
     }
 
     this.playButton
-      .setText("PROXIMAMENTE")
+      .setText("SIGUIENTE ZONA BLOQUEADA")
       .setColor("#a5b0bf")
       .setAlpha(0.85);
   }
@@ -432,7 +499,14 @@ export class MapSelectScene extends Phaser.Scene {
   // ---------------------------------------------------------------------------
 
   private startSelectedZone() {
-    if (!this.activeZone?.available) {
+    if (
+      !this.activeZone ||
+      !this.isZonePlayable(
+        this.getZoneStatus(
+          this.activeZone
+        )
+      )
+    ) {
       return;
     }
 
@@ -457,6 +531,23 @@ export class MapSelectScene extends Phaser.Scene {
           }
         );
       }
+    );
+  }
+
+  private getZoneStatus(
+    zone: Zone
+  ): LevelStatus {
+    return LevelProgress.getStatus(
+      zone.mapKey
+    );
+  }
+
+  private isZonePlayable(
+    status: LevelStatus
+  ): boolean {
+    return (
+      status === "completed" ||
+      status === "unlocked"
     );
   }
 }

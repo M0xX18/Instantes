@@ -16,11 +16,30 @@ public/assets/images/
       Edítalo en Aseprite y vuelve a enlazarlo en Tiled.
 
   papitas-idle.png
-      Sprite sheet de Papitas quieta. 4 fotogramas de 32x48 (Aseprite).
-  personaje-caminar.png
-      Sprite sheet caminando. 4 fotogramas de 32x48.
-  personaje-salto.png
-      Sprite sheet de salto. 2 fotogramas de 32x48.
+      Sprite sheet de Papitas quieta. 4 fotogramas de 139x448.
+  papitas-caminar.png
+      Sprite sheet caminando. 4 fotogramas de 139x448.
+      Mira a la derecha; Phaser lo refleja horizontalmente al caminar
+      hacia la izquierda.
+
+  andres.png
+      Sprite sheet de Andrés celebrando. 4 fotogramas de 292x927.
+
+  arabella-celebracion.png
+      Sprite sheet de Arabella celebrando. 4 fotogramas de 177x351.
+
+  item-papitas-fritas.png
+      Power-up de disparo: lanza papas individuales.
+  item-jugo-lulo.png
+      Power-up de cadencia: permite disparar mucho más rápido.
+  item-hamburguesa.png
+      Power-up de ráfaga: lanza tres hamburguesas.
+  item-brocoli.png
+      Ítem negativo: reduce temporalmente la velocidad de Papitas.
+  item-jugo-guayaba.png
+      Ítem negativo: reduce temporalmente la cadencia de disparo.
+  proyectil-papa.png
+      Proyectil usado por el power-up de papitas fritas.
 
 public/assets/video/
   intro.mp4

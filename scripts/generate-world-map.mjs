@@ -1,4 +1,4 @@
-/** Genera un primer nivel más largo y variado para editarlo luego en Tiled. */
+/** Genera Mundo 1 con una ruta completa, plataformas alcanzables y fosos. */
 import { writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -11,9 +11,15 @@ const set = (x, y, tile) => {
   if (x >= 0 && x < width && y >= 0 && y < height) data[y * width + x] = tile;
 };
 
+// Tramos de suelo separados por fosos de 3-4 casillas. Con la velocidad y
+// salto actuales todos se pueden cruzar, pero fallar sí hace caer al vacío.
 const terrain = [
-  [0, 17, 17], [17, 16, 33], [33, 18, 51], [51, 15, 66],
-  [66, 17, 83], [83, 14, 97], [97, 16, 113], [113, 18, 120],
+  [0, 26, 14],
+  [17, 25, 35],
+  [39, 26, 56],
+  [60, 24, 79],
+  [83, 26, 101],
+  [105, 25, 120],
 ];
 for (const [start, top, end] of terrain) {
   for (let x = start; x < end; x += 1) {
@@ -22,10 +28,26 @@ for (const [start, top, end] of terrain) {
   }
 }
 
+// Cada ascenso es de 2-3 casillas y las plataformas-puente muestran una ruta
+// alternativa sobre los fosos. No hay saltos verticales imposibles.
 const platforms = [
-  [7, 20, 6], [15, 18, 5], [25, 14, 5], [35, 16, 7], [45, 12, 5],
-  [57, 11, 6], [69, 14, 5], [77, 12, 6], [88, 9, 6], [100, 12, 5],
-  [109, 14, 5],
+  [5, 23, 6],
+  [11, 21, 5],
+  [15, 23, 6],
+  [22, 22, 6],
+  [29, 20, 6],
+  [33, 23, 7],
+  [42, 23, 6],
+  [49, 21, 6],
+  [54, 23, 8],
+  [64, 21, 6],
+  [71, 19, 6],
+  [76, 21, 8],
+  [86, 23, 6],
+  [93, 21, 6],
+  [98, 23, 8],
+  [107, 22, 6],
+  [113, 20, 6],
 ];
 for (const [start, y, length] of platforms) {
   for (let x = start; x < start + length; x += 1) set(x, y, 3);
@@ -40,7 +62,10 @@ const map = {
   tilewidth: 32, type: "map", version: "1.10", width,
 };
 
-writeFileSync(join(root, "public", "assets", "maps", "mundo-1.json"), JSON.stringify(map));
+writeFileSync(
+  join(root, "public", "assets", "maps", "mundo-1.json"),
+  `${JSON.stringify(map)}\n`
+);
 const csv = Array.from({ length: height }, (_, y) => data.slice(y * width, (y + 1) * width).join(",")).join(",\n");
 const tmx = `<?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="${width}" height="${height}" tilewidth="32" tileheight="32" infinite="0" nextlayerid="2" nextobjectid="1">

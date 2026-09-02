@@ -1,6 +1,8 @@
 import Phaser from "phaser";
 import { ASSETS } from "../config/assets";
 
+type FacingDirection = -1 | 1;
+
 export class Player extends Phaser.Physics.Arcade.Sprite {
   // ---------------------------------------------------------------------------
   // INPUT
@@ -9,6 +11,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private moveLeft = false;
   private moveRight = false;
   private jumpHeld = false;
+  private facingDirection: FacingDirection = 1;
+  private speedMultiplier = 1;
 
   // ---------------------------------------------------------------------------
   // JUMP STATE
@@ -17,25 +21,19 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private lastGroundedAt = Number.NEGATIVE_INFINITY;
   private jumpQueuedAt = Number.NEGATIVE_INFINITY;
   private jumpCut = false;
-  private wasGrounded = false;
 
   // ---------------------------------------------------------------------------
   // SPRITE / PHYSICS
   // ---------------------------------------------------------------------------
 
-  // Tamaño aproximado de cada frame del spritesheet.
-  // (no usado, pero documentado para referencia)
+  private static readonly SCALE = 0.28;
 
-  // Hitbox física expresada en píxeles del sprite original.
-  // Con scale 0.12 termina siendo aproximadamente 16x53 px en el juego.
-  private static readonly BODY_WIDTH = 86;
-  private static readonly BODY_HEIGHT = 190;
-
-  // Separación horizontal.
-  private static readonly BODY_OFFSET_X = 26;
-
-  // El cuerpo queda apoyado aproximadamente en los pies.
-  private static readonly BODY_OFFSET_Y = 258;
+  // Hitbox física expresada en píxeles de cada frame (139x448).
+  // Con la escala actual queda en ~27x98px y coincide con torso y piernas.
+  private static readonly BODY_WIDTH = 96;
+  private static readonly BODY_HEIGHT = 350;
+  private static readonly BODY_OFFSET_X = 22;
+  private static readonly BODY_OFFSET_Y = 93;
 
   // ---------------------------------------------------------------------------
   // MOVEMENT
@@ -81,65 +79,25 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     // -------------------------------------------------------------------------
 
     this.setOrigin(0.5, 0.5);
-    this.setScale(0.12);
+    this.setScale(Player.SCALE);
     this.setDepth(5);
 
     this.setCollideWorldBounds(false);
     this.setBounce(0);
 
-    // Evitamos rotación física.
+    body.setAllowGravity(true);
     body.setAllowRotation(false);
+    body.setBounce(0);
 
     // -------------------------------------------------------------------------
     // HITBOX
     // -------------------------------------------------------------------------
-
-    /*
-     * El sprite original mide:
-     *
-     *   139 x 448
-     *
-     * Con escala 0.28:
-     *
-     *   139 * 0.28 = 38.92 px
-     *   448 * 0.28 = 125.44 px
-     *
-     * Por eso NO debemos utilizar:
-     *
-     *   setBodySize(25, 70)
-     *
-     * porque Phaser aplica la escala al body.
-     *
-     * Utilizamos aproximadamente:
-     *
-     *   86 x 190
-     *
-     * que termina siendo:
-     *
-     *   24 x 53 px
-     *
-     * en el mundo del juego.
-     */
 
     body.setSize(
       Player.BODY_WIDTH,
       Player.BODY_HEIGHT,
       false
     );
-
-    /*
-     * Centrado horizontal:
-     *
-     * (139 - 86) / 2 = 26.5
-     *
-     * Usamos 26.
-     *
-     * Verticalmente:
-     *
-     * 448 - 190 = 258
-     *
-     * Así el cuerpo termina aproximadamente en los pies.
-     */
     body.setOffset(
       Player.BODY_OFFSET_X,
       Player.BODY_OFFSET_Y
@@ -212,19 +170,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     // Guardamos el último momento en el suelo.
     if (grounded) {
       this.lastGroundedAt = now;
-
-      if (!this.wasGrounded) {
-        this.onLanded();
-      }
     }
-
-    this.wasGrounded = grounded;
 
     // -------------------------------------------------------------------------
     // DIRECTION
     // -------------------------------------------------------------------------
 
-    let direction = 0;
+    let direction: FacingDirection | 0 = 0;
 
     if (this.moveLeft && !this.moveRight) {
       direction = -1;
@@ -237,7 +189,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     // -------------------------------------------------------------------------
 
     const targetVelocity =
-      direction * Player.MAX_SPEED;
+      direction *
+      Player.MAX_SPEED *
+      this.speedMultiplier;
 
     const moving = direction !== 0;
 
@@ -272,11 +226,18 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     // FACING
     // -------------------------------------------------------------------------
 
-    if (direction < 0) {
-      this.setFlipX(true);
-    } else if (direction > 0) {
-      this.setFlipX(false);
+    if (direction !== 0) {
+      this.setFacingDirection(
+        direction
+      );
     }
+  }
+
+  private setFacingDirection(
+    direction: FacingDirection
+  ) {
+    this.facingDirection = direction;
+    this.setFlipX(direction < 0);
   }
 
   // ---------------------------------------------------------------------------
@@ -375,21 +336,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       Number.NEGATIVE_INFINITY;
 
     this.jumpCut = false;
-    this.wasGrounded = false;
-  }
-
-  // ---------------------------------------------------------------------------
-  // LANDING
-  // ---------------------------------------------------------------------------
-
-  private onLanded() {
-    this.jumpCut = false;
-
-    // Aquí puedes agregar:
-    // - sonido
-    // - partículas
-    // - squash/stretch
-    // - pequeña vibración de cámara
   }
 
   // ---------------------------------------------------------------------------
@@ -473,10 +419,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       anims.create({
         key: "jump",
         frames: anims.generateFrameNumbers(
-          ASSETS.personajeSalto,
+          ASSETS.personajeCaminar,
           {
-            start: 0,
-            end: 1,
+            frames: [1, 3],
           }
         ),
         frameRate: 6,
@@ -489,24 +434,15 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   // PUBLIC METHODS
   // ---------------------------------------------------------------------------
 
-  getFacingDirection(): number {
-    return this.flipX ? -1 : 1;
+  getFacingDirection(): FacingDirection {
+    return this.facingDirection;
   }
 
-  isGrounded(): boolean {
-    const body =
-      this.body as Phaser.Physics.Arcade.Body;
-
-    return (
-      body.blocked.down ||
-      body.touching.down
+  setSpeedMultiplier(multiplier: number) {
+    this.speedMultiplier = Phaser.Math.Clamp(
+      multiplier,
+      0.3,
+      1
     );
-  }
-
-  getSpeed(): number {
-    const body =
-      this.body as Phaser.Physics.Arcade.Body;
-
-    return Math.abs(body.velocity.x);
   }
 }

@@ -17,30 +17,26 @@ export class BootScene extends Phaser.Scene {
     this.load.spritesheet(ASSETS.personajeIdle, "assets/images/papitas-idle.png", {
       frameWidth: 139, frameHeight: 448,
     });
-    this.load.spritesheet(ASSETS.personajeCaminar, "assets/images/personaje-caminar.png", {
-      frameWidth: 64, frameHeight: 96,
+    this.load.spritesheet(ASSETS.personajeCaminar, "assets/images/papitas-caminar.png", {
+      frameWidth: 139, frameHeight: 448,
     });
-    this.load.spritesheet(ASSETS.personajeSalto, "assets/images/personaje-salto.png", {
-      frameWidth: 64, frameHeight: 96,
-    });
-
     // Andres
     this.load.spritesheet(
       ASSETS.andres,
       "assets/images/andres.png",
       {
-        frameWidth: 139,
-        frameHeight: 448,
+        frameWidth: 292,
+        frameHeight: 927,
       }
     );
  
     // Arabella
     this.load.spritesheet(
       ASSETS.arabella,
-      "assets/images/arabella.png",
+      "assets/images/arabella-celebracion.png",
       {
-        frameWidth: 139,
-        frameHeight: 448,
+        frameWidth: 177,
+        frameHeight: 351,
       }
     );
 
@@ -51,6 +47,14 @@ export class BootScene extends Phaser.Scene {
     this.load.spritesheet(ASSETS.enemyAvocado, "assets/images/aguacate.png", {
       frameWidth: 204, frameHeight: 306,
     });
+
+    // Collectibles y proyectiles de poderes.
+    this.load.image(ASSETS.itemBrocoli, "assets/images/item-brocoli.png");
+    this.load.image(ASSETS.itemJugoGuayaba, "assets/images/item-jugo-guayaba.png");
+    this.load.image(ASSETS.itemPapitasFritas, "assets/images/item-papitas-fritas.png");
+    this.load.image(ASSETS.itemJugoLulo, "assets/images/item-jugo-lulo.png");
+    this.load.image(ASSETS.itemHamburguesa, "assets/images/item-hamburguesa.png");
+    this.load.image(ASSETS.proyectilPapa, "assets/images/proyectil-papa.png");
   }
 
   create() {
@@ -62,6 +66,14 @@ export class BootScene extends Phaser.Scene {
     projectile.strokeCircle(6, 6, 5);
     projectile.generateTexture(ASSETS.proyectil, 12, 12);
     projectile.destroy();
+
+    const luloProjectile = this.make.graphics({ x: 0, y: 0 });
+    luloProjectile.fillStyle(0xffc928, 1);
+    luloProjectile.fillCircle(7, 7, 6);
+    luloProjectile.lineStyle(2, 0x79c83d, 1);
+    luloProjectile.strokeCircle(7, 7, 5);
+    luloProjectile.generateTexture(ASSETS.proyectilLulo, 14, 14);
+    luloProjectile.destroy();
 
     // Enemy animations
     const anims = this.anims;

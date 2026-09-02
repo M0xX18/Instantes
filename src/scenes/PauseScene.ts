@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { GAME_HEIGHT, GAME_WIDTH } from "../config/game";
+import { LevelProgress } from "../systems/progression/LevelProgress";
 
 export class PauseScene extends Phaser.Scene {
   constructor() {
@@ -18,7 +19,7 @@ export class PauseScene extends Phaser.Scene {
     overlay.setScrollFactor(0);
 
     this.add
-      .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 50, "PAUSA", {
+      .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 105, "PAUSA", {
         fontFamily: "Cinzel, serif",
         fontSize: "48px",
         color: "#f4ead0",
@@ -26,14 +27,16 @@ export class PauseScene extends Phaser.Scene {
       .setOrigin(0.5)
       .setScrollFactor(0);
 
-    const resume = this.makeButton(GAME_HEIGHT / 2 + 20, "Continuar", () => {
+    const resume = this.makeButton(GAME_HEIGHT / 2 - 15, "Continuar", () => {
       this.closePause();
     });
+
     this.makeButton(resume.y + 56, "Volver al mapa", () => {
       this.scene.stop("WorldScene");
-      this.scene.stop();
-      this.scene.start("TitleScene");
+      this.scene.start("MapSelectScene");
     });
+
+    this.createNewGameButton(resume.y + 112);
 
     this.input.keyboard!.once("keydown-ESC", () => this.closePause());
   }
@@ -52,6 +55,46 @@ export class PauseScene extends Phaser.Scene {
     text.on("pointerout", () => text.setColor("#efe6d0"));
     text.on("pointerup", onClick);
     return text;
+  }
+
+  private createNewGameButton(y: number) {
+    let confirmationExpires:
+      | Phaser.Time.TimerEvent
+      | undefined;
+
+    const button = this.makeButton(
+      y,
+      "Nueva partida",
+      () => {
+        if (!button.getData("confirming")) {
+          button
+            .setData("confirming", true)
+            .setText("Confirmar nueva partida")
+            .setColor("#ff8b8b");
+
+          confirmationExpires?.remove(false);
+          confirmationExpires =
+            this.time.delayedCall(
+              4000,
+              () => {
+                button
+                  .setData("confirming", false)
+                  .setText("Nueva partida")
+                  .setColor("#efe6d0");
+              }
+            );
+
+          return;
+        }
+
+        confirmationExpires?.remove(false);
+        LevelProgress.reset();
+        this.scene.stop("WorldScene");
+        this.scene.start("MapSelectScene");
+      }
+    );
+
+    button.setData("confirming", false);
   }
 
   private closePause() {

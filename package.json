@@ -7,7 +7,6 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "assets": "node scripts/generate-placeholders.mjs",
     "map": "node scripts/generate-world-map.mjs"
   },
   "dependencies": {
