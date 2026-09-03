@@ -80,17 +80,6 @@ export class WinScene extends Phaser.Scene {
       GAME_WIDTH,
       GAME_HEIGHT
     );
-
-    this.add
-      .ellipse(
-        GAME_WIDTH / 2,
-        458,
-        760,
-        54,
-        0x00150c,
-        0.5
-      )
-      .setDepth(1);
   }
 
   private createVictoryKiss(
@@ -98,20 +87,19 @@ export class WinScene extends Phaser.Scene {
   ) {
     this.createVictoryAnimations();
 
-    const stageFrame = this.add.graphics();
-    stageFrame.lineStyle(3, 0xf5d59a, 0.75);
-    stageFrame.strokeRoundedRect(
-      263,
-      6,
-      524,
-      480,
-      18
-    );
-    stageFrame.setDepth(2);
+    // La mesa completa la celebración sin tapar el beso ni el panel final.
+    this.add
+      .image(
+        985,
+        366,
+        ASSETS.victoriaMesaPastel
+      )
+      .setDisplaySize(344, 229)
+      .setDepth(2);
 
     const kissAnimation = this.add
       .sprite(
-        525,
+        470,
         246,
         ASSETS.victoriaBeso,
         0
@@ -120,52 +108,20 @@ export class WinScene extends Phaser.Scene {
       .setDepth(3)
       .play("victory-kiss");
 
-    const arabellaGlow = this.add
-      .ellipse(
-        961,
-        378,
-        238,
-        238,
-        0xffd86b,
-        0.12
-      )
-      .setDepth(2);
-
-    this.tweens.add({
-      targets: arabellaGlow,
-      alpha: { from: 0.06, to: 0.2 },
-      scale: { from: 0.92, to: 1.08 },
-      duration: 720,
-      yoyo: true,
-      repeat: -1,
-      ease: "Sine.InOut",
-    });
-
     this.add
       .sprite(
-        961,
-        482,
+        690,
+        477,
         ASSETS.arabella,
         0
       )
       .setOrigin(0.5, 249 / 351)
-      .setScale(0.62)
+      .setScale(1.38)
       .setDepth(4)
       .play("win-arabella-celebrate");
 
-    this.add
-      .text(961, 252, "ARABELLA", {
-        fontFamily: '"Press Start 2P", monospace',
-        fontSize: "10px",
-        color: "#ffe6a3",
-        stroke: "#4a2030",
-        strokeThickness: 4,
-      })
-      .setOrigin(0.5)
-      .setDepth(5);
-
     const kiss = this.add
-      .text(650, 86, "¡MUAK!  ♥", {
+      .text(590, 86, "¡MUAK!  ♥", {
         fontFamily: 'Arial, "Trebuchet MS", sans-serif',
         fontSize: "27px",
         fontStyle: "bold",

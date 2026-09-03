@@ -58,11 +58,9 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     body.setMaxVelocity(Enemy.MAX_SPEED, 700);
 
     if (enemyType === "river-worm") {
-      // La imagen se usa intacta. Screen hace que el fondo negro no oculte
-      // el escenario al componerla durante el renderizado.
-      this
-        .setDisplaySize(136, 91)
-        .setBlendMode(Phaser.BlendModes.SCREEN);
+      // El PNG ya trae transparencia real: el modo normal mantiene el cuerpo
+      // sólido y deja transparente únicamente el contorno exterior.
+      this.setDisplaySize(136, 91);
       body.setSize(1180, 680, true);
     } else {
       this.setScale(0.23);

@@ -25,11 +25,18 @@ export type ItemDefinition = {
   type: CollectibleType;
 };
 
+export type TerrainSegment = {
+  row: number;
+  startCol: number;
+  endCol: number;
+  tile: 1 | 2 | 3;
+};
+
 export type LevelDefinition = {
   key: PlayableLevelKey;
   mapKey: string;
   background: string;
-  finalBackground?: string;
+  terrain?: readonly TerrainSegment[];
   gravityY: number;
   playerSpawnX: number;
   playerSpawnYOffset: number;

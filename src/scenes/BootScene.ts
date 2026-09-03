@@ -10,7 +10,6 @@ export class BootScene extends Phaser.Scene {
     this.load.image(ASSETS.fondoEspacio, "assets/images/fondo-espacio.png");
     this.load.image(ASSETS.fondoIsla, "assets/images/fondo-isla.png");
     this.load.image(ASSETS.fondoJungla, "assets/images/fondo-jungla.png");
-    this.load.image(ASSETS.fondoRiosCamino, "assets/images/fondo-rios-camino.png");
     this.load.image(ASSETS.fondoRios, "assets/images/fondo-rios.png");
     this.load.image(ASSETS.fondoCiudad, "assets/images/fondo-ciudad.png");
     this.load.image(ASSETS.fondoPradera, "assets/images/fondo-pradera.png");
@@ -55,6 +54,10 @@ export class BootScene extends Phaser.Scene {
         frameWidth: 512,
         frameHeight: 512,
       }
+    );
+    this.load.image(
+      ASSETS.victoriaMesaPastel,
+      "assets/images/victoria-mesa-pastel.png"
     );
 
     // Enemies

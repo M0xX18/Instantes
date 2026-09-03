@@ -110,7 +110,7 @@ export class WorldScene extends Phaser.Scene {
     // Nivel.
     const map = this.createMap();
 
-    this.createBackground(map);
+    this.createBackground();
     this.createPlayer(map);
     this.createCamera(map);
     this.createEnemies(map);
@@ -276,6 +276,33 @@ export class WorldScene extends Phaser.Scene {
       );
     }
 
+    // Los mundos que incluyen terreno propio reemplazan la geometría base
+    // del JSON. Esto permite que Ríos tenga un recorrido independiente y
+    // legible sin duplicar un mapa completo.
+    if (this.level.terrain) {
+      groundLayer.fill(
+        -1,
+        0,
+        0,
+        map.width,
+        map.height,
+        true
+      );
+
+      for (const segment of this.level.terrain) {
+        groundLayer.fill(
+          segment.tile,
+          segment.startCol,
+          segment.row,
+          segment.endCol -
+            segment.startCol +
+            1,
+          1,
+          true
+        );
+      }
+    }
+
     // El tileset reserva su primer cuadro para vacío, mientras que el mapa
     // histórico guarda césped/tierra/plataforma como 1/2/3. Normalizamos a
     // los índices visuales 2/3/4 para que dibujo y colisión coincidan.
@@ -314,9 +341,7 @@ export class WorldScene extends Phaser.Scene {
   // BACKGROUND
   // ---------------------------------------------------------------------------
 
-  private createBackground(
-    map: Phaser.Tilemaps.Tilemap
-  ) {
+  private createBackground() {
     const bg = this.add
       .image(
         GAME_WIDTH / 2,
@@ -331,22 +356,6 @@ export class WorldScene extends Phaser.Scene {
       GAME_HEIGHT
     );
 
-    // En Ríos, la cascada sólo entra en cámara al alcanzar el último tramo.
-    if (this.level.finalBackground) {
-      this.add
-        .image(
-          map.widthInPixels -
-            GAME_WIDTH / 2,
-          GAME_HEIGHT / 2,
-          this.level.finalBackground
-        )
-        .setDisplaySize(
-          GAME_WIDTH,
-          GAME_HEIGHT
-        )
-        .setScrollFactor(1, 0)
-        .setDepth(-19);
-    }
   }
 
   // ---------------------------------------------------------------------------

@@ -2,7 +2,6 @@ export const ASSETS = {
   fondoEspacio: "fondo-espacio",
   fondoIsla: "fondo-isla",
   fondoJungla: "fondo-jungla",
-  fondoRiosCamino: "fondo-rios-camino",
   fondoRios: "fondo-rios",
   fondoCiudad: "fondo-ciudad",
   fondoPradera: "fondo-pradera",
@@ -21,6 +20,7 @@ export const ASSETS = {
   andres: "andres",
   arabella: "arabella",
   victoriaBeso: "victoria-beso",
+  victoriaMesaPastel: "victoria-mesa-pastel",
 
   proyectil: "proyectil",
   proyectilPapa: "proyectil-papa",
