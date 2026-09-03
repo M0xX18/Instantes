@@ -85,7 +85,6 @@ export class MapSelectScene extends Phaser.Scene {
 
   create() {
     // MAP
-
     this.mapImage = this.add
       .image(
         GAME_WIDTH / 2,
@@ -96,7 +95,6 @@ export class MapSelectScene extends Phaser.Scene {
       .setDepth(0);
 
     // TITLE
-
     this.add
       .text(
         GAME_WIDTH / 2,
@@ -113,10 +111,7 @@ export class MapSelectScene extends Phaser.Scene {
       .setOrigin(0.5)
       .setDepth(2);
 
-    // -------------------------------------------------------------------------
     // STATUS
-    // -------------------------------------------------------------------------
-
     this.status = this.add
       .text(
         GAME_WIDTH / 2,
@@ -134,25 +129,16 @@ export class MapSelectScene extends Phaser.Scene {
       .setOrigin(0.5)
       .setDepth(2);
 
-    // -------------------------------------------------------------------------
     // UI
-    // -------------------------------------------------------------------------
-
     this.createZoneMarkers();
     this.createCursor();
     this.createPlayButton();
     this.createZoneTargets();
-
-    // Mundo 1 siempre es el punto de partida y queda seleccionado al entrar.
     this.selectZone(this.zones[0], false);
-
     this.cameras.main.fadeIn(500, 2, 1, 10);
   }
 
-  // ---------------------------------------------------------------------------
   // ZONE MARKERS
-  // ---------------------------------------------------------------------------
-
   private createZoneMarkers() {
     for (const [index, zone] of this.zones.entries()) {
       const zoneStatus =
@@ -209,10 +195,7 @@ export class MapSelectScene extends Phaser.Scene {
     }
   }
 
-  // ---------------------------------------------------------------------------
   // CURSOR / PLAYER
-  // ---------------------------------------------------------------------------
-
   private createCursor() {
     // Animaciones exclusivas del mapa.
     if (!this.anims.exists("map-idle")) {
@@ -245,10 +228,7 @@ export class MapSelectScene extends Phaser.Scene {
       });
     }
 
-    // -------------------------------------------------------------------------
     // CURSOR
-    // -------------------------------------------------------------------------
-
     this.cursor = this.add
       .sprite(
         GAME_WIDTH / 2,
@@ -263,10 +243,7 @@ export class MapSelectScene extends Phaser.Scene {
     this.cursor.play("map-idle");
   }
 
-  // ---------------------------------------------------------------------------
   // PLAY BUTTON
-  // ---------------------------------------------------------------------------
-
   private createPlayButton() {
     this.playButton = this.add
       .text(
@@ -321,21 +298,16 @@ export class MapSelectScene extends Phaser.Scene {
     });
   }
 
-  // ---------------------------------------------------------------------------
   // ZONE TARGETS
-  // ---------------------------------------------------------------------------
-
   private createZoneTargets() {
     for (const zone of this.zones) {
       const zoneStatus =
         this.getZoneStatus(zone);
 
-      // Las zonas futuras ni siquiera reciben eventos del mouse.
       if (zoneStatus === "locked") {
         continue;
       }
 
-      // Área invisible de interacción.
       const target = this.add
         .circle(
           zone.x,
@@ -367,10 +339,7 @@ export class MapSelectScene extends Phaser.Scene {
     }
   }
 
-  // ---------------------------------------------------------------------------
   // SELECT ZONE
-  // ---------------------------------------------------------------------------
-
   private selectZone(
     zone: Zone,
     animate = true
@@ -384,13 +353,10 @@ export class MapSelectScene extends Phaser.Scene {
 
     this.activeZone = zone;
 
-    // Si existe preview, lo mostramos.
-    // Si no, mantenemos el mapa general.
     this.mapImage.setTexture(
       zone.previewTexture ?? ASSETS.mapaZonas
     );
 
-    // Texto de estado.
     this.status.setText(
       zoneStatus === "next"
         ? `${zone.name}\n${zone.subtitle}\nCOMPLETA LA ZONA ANTERIOR`
@@ -399,10 +365,7 @@ export class MapSelectScene extends Phaser.Scene {
 
     this.updatePlayButton(zone);
 
-    // -------------------------------------------------------------------------
     // CURSOR
-    // -------------------------------------------------------------------------
-
     this.cursor.setAlpha(1);
 
     if (!animate) {
@@ -463,10 +426,7 @@ export class MapSelectScene extends Phaser.Scene {
     });
   }
 
-  // ---------------------------------------------------------------------------
   // PLAY BUTTON STATE
-  // ---------------------------------------------------------------------------
-
   private updatePlayButton(zone: Zone | null) {
     if (!zone) {
       this.playButton
@@ -495,10 +455,7 @@ export class MapSelectScene extends Phaser.Scene {
       .setAlpha(0.85);
   }
 
-  // ---------------------------------------------------------------------------
   // START WORLD
-  // ---------------------------------------------------------------------------
-
   private startSelectedZone() {
     if (
       !this.activeZone ||

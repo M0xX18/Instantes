@@ -15,6 +15,7 @@ export const ASSETS = {
   mapaMundo5: "mundo-5",
   personajeIdle: "papitas-idle",
   personajeCaminar: "papitas-caminar",
+  atardecer: "atardecer",
 
   // Family
   andres: "andres",

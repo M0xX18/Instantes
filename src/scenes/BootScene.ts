@@ -16,6 +16,7 @@ export class BootScene extends Phaser.Scene {
     this.load.image(ASSETS.mapaZonas, "assets/images/mapa.jpg");
     this.load.image(ASSETS.mapaIsla, "assets/images/mapa-isla.jpg");
     this.load.image(ASSETS.tileset, "assets/images/tileset-plataformas.png");
+    this.load.image(ASSETS.atardecer, "assets/images/atardecer.jpg");
     this.load.tilemapTiledJSON(ASSETS.mapaMundo1, "assets/maps/mundo-1.json");
     this.load.tilemapTiledJSON(ASSETS.mapaMundo2, "assets/maps/mundo-2.json");
     this.load.tilemapTiledJSON(ASSETS.mapaMundo3, "assets/maps/mundo-3.json");

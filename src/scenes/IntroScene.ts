@@ -47,9 +47,6 @@ export class IntroScene extends Phaser.Scene {
     video.once("unsupported", fallback);
     video.once("error", fallback);
 
-    // El video estaba usando su resolución nativa (por ejemplo 1920x1080)
-    // dentro de un juego de 1280x720. Esperamos al primer frame para conocer
-    // su tamaño real y lo ajustamos con contain: nunca se recorta ni deforma.
     video.once(
       Phaser.GameObjects.Events.VIDEO_CREATED,
       (

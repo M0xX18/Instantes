@@ -95,19 +95,14 @@ export class WorldScene extends Phaser.Scene {
     }
 
     this.level = PLAYABLE_LEVELS[this.worldKey];
-
-    // Puede quedar pausado después de completar o perder una ejecución anterior.
     this.physics.world.resume();
     this.physics.world.gravity.y = this.level.gravityY;
-
-    // Sistemas.
     this.inputManager = new InputManager(this);
     this.hud = new WorldHUD(this);
     this.enemyManager = new EnemyManager(this);
     this.projectileManager = new ProjectileManager(this);
     this.itemManager = new ItemManager(this);
 
-    // Nivel.
     const map = this.createMap();
 
     this.createBackground();
@@ -119,7 +114,6 @@ export class WorldScene extends Phaser.Scene {
     this.createCombatCollisions();
     this.createItemCollisions();
 
-    // HUD.
     this.hud.create(this.timerMs);
 
     if (this.worldKey === "mundo-1") {
@@ -132,8 +126,6 @@ export class WorldScene extends Phaser.Scene {
       1,
       10
     );
-
-    // Limpieza al apagar la escena.
     this.events.once(
       Phaser.Scenes.Events.SHUTDOWN,
       this.cleanup,
@@ -208,10 +200,7 @@ export class WorldScene extends Phaser.Scene {
     this.projectileManager.update();
   }
 
-  // ---------------------------------------------------------------------------
   // INTRO DIALOGUE
-  // ---------------------------------------------------------------------------
-
   private showIntroDialogue() {
     this.introDialogueActive = true;
     this.physics.world.pause();
@@ -219,17 +208,24 @@ export class WorldScene extends Phaser.Scene {
     this.dialogue = new DialogueOverlay(
       this,
       {
-        speaker: "ANDRÉS",
+        speaker: "ANDRES",
         pages: [
-          "Papitas, todo viaje comienza con un primer paso.",
-          "Esta isla guarda el inicio de nuestra historia.",
-          "Recórrela con calma y encuéntranos al final.",
+          "Hola amor, posiblemente te estes preguntando que es esto?",
+          "La respuesta es que esto es un mundo creado e inspirado solo para ti, no es el mejor ni el mas bonito...",
+          "Pero quiero que sepas...",
+          "Que esto no esta hecho ni con un motor grafico, ni con ayudas y mucho menos es un canva como salia en TikTok",
+          "Esta hecho con todo el amor del mundo, totalmente desde 0",
+          "Y con un poquito de ayuda de la IA claro.",
+          "Espero que te guste, perdon si no es lo mas elaborado del mundo, hice lo que se pudo",
+          "Es mucho mas jodido de lo que parece, casi me hechan de la chamba (no bait) y no he dormido nada jaja",
+          "Pero aprendi mucho, gracias por hacerme tan feliz!",
+          "PD: Las botellas son de lulo y de guayaba, solo que no se ve tan bien en la imagen jaja!",
+          "PD2: Arriba dice las instrucciones pero basicamente te mueves con las flechitas y disparas con la X, o te mueves con W/A/S/D y disparas con la J",
+          "Algunos enemigos se mueren con proyectiles disparados agachandote por lo que deberas agacharte con la flechita hacia abajo o con la S y disparar",
+          "TE AMO",
         ],
         onDismiss: () => {
           this.dialogue = undefined;
-
-          // Evita que la misma tecla usada para cerrar el diálogo active una
-          // acción del juego durante ese instante.
           this.dialogueResumeTimer =
             this.time.delayedCall(
               120,
@@ -243,10 +239,7 @@ export class WorldScene extends Phaser.Scene {
     );
   }
 
-  // ---------------------------------------------------------------------------
   // MAP
-  // ---------------------------------------------------------------------------
-
   private createMap(): Phaser.Tilemaps.Tilemap {
     const map = this.make.tilemap({
       key: this.level.mapKey,
@@ -337,10 +330,7 @@ export class WorldScene extends Phaser.Scene {
     return map;
   }
 
-  // ---------------------------------------------------------------------------
   // BACKGROUND
-  // ---------------------------------------------------------------------------
-
   private createBackground() {
     const bg = this.add
       .image(
@@ -358,10 +348,7 @@ export class WorldScene extends Phaser.Scene {
 
   }
 
-  // ---------------------------------------------------------------------------
   // PLAYER
-  // ---------------------------------------------------------------------------
-
   private createPlayer(
     map: Phaser.Tilemaps.Tilemap
   ) {
@@ -382,18 +369,13 @@ export class WorldScene extends Phaser.Scene {
     this.player.setCollideWorldBounds(
       true
     );
-
-    // Player ↔ suelo.
     this.physics.add.collider(
       this.player,
       this.ground
     );
   }
 
-  // ---------------------------------------------------------------------------
   // CAMERA
-  // ---------------------------------------------------------------------------
-
   private createCamera(
     map: Phaser.Tilemaps.Tilemap
   ) {
@@ -412,10 +394,7 @@ export class WorldScene extends Phaser.Scene {
     );
   }
 
-  // ---------------------------------------------------------------------------
   // ENEMIES
-  // ---------------------------------------------------------------------------
-
   private createEnemies(
     map: Phaser.Tilemaps.Tilemap
   ) {
@@ -560,14 +539,12 @@ export class WorldScene extends Phaser.Scene {
     const projectiles =
       this.projectileManager.getGroup();
 
-    // Contacto corporal de Papitas con cualquier enemigo.
     this.physics.add.overlap(
       this.player,
       enemies,
       () => this.triggerGameOver("enemigo")
     );
 
-    // Un proyectil sólo puede resolver un impacto válido una vez.
     this.physics.add.overlap(
       projectiles,
       enemies,
@@ -591,7 +568,6 @@ export class WorldScene extends Phaser.Scene {
       }
     );
 
-    // Los disparos ya no atraviesan suelo, paredes ni plataformas.
     this.physics.add.collider(
       projectiles,
       this.ground,
@@ -606,10 +582,7 @@ export class WorldScene extends Phaser.Scene {
     );
   }
 
-  // ---------------------------------------------------------------------------
   // FAMILY
-  // ---------------------------------------------------------------------------
-
   private createFamily(
     map: Phaser.Tilemaps.Tilemap
   ) {
@@ -650,8 +623,6 @@ export class WorldScene extends Phaser.Scene {
       this.goalSensor,
       true
     );
-
-    // Papitas entra al área visible de Andrés o Arabella: completa el nivel.
     this.physics.add.overlap(
       this.player,
       this.goalSensor,
@@ -659,10 +630,7 @@ export class WorldScene extends Phaser.Scene {
     );
   }
 
-  // ---------------------------------------------------------------------------
   // WIN
-  // ---------------------------------------------------------------------------
-
   private triggerWin() {
     if (this.timerDone) {
       return;
@@ -705,10 +673,7 @@ export class WorldScene extends Phaser.Scene {
     );
   }
 
-  // ---------------------------------------------------------------------------
   // GAME OVER
-  // ---------------------------------------------------------------------------
-
   private triggerGameOver(
     reason:
       | "tiempo"
@@ -745,10 +710,7 @@ export class WorldScene extends Phaser.Scene {
     );
   }
 
-  // ---------------------------------------------------------------------------
   // PAUSE
-  // ---------------------------------------------------------------------------
-
   private openPause() {
     this.paused = true;
 
@@ -764,10 +726,7 @@ export class WorldScene extends Phaser.Scene {
     this.physics.world.pause();
   }
 
-  // ---------------------------------------------------------------------------
   // CLEANUP
-  // ---------------------------------------------------------------------------
-
   private cleanup() {
     this.dialogue?.destroy();
     this.dialogueResumeTimer?.remove(false);

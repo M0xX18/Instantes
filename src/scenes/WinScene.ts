@@ -87,7 +87,6 @@ export class WinScene extends Phaser.Scene {
   ) {
     this.createVictoryAnimations();
 
-    // La mesa completa la celebración sin tapar el beso ni el panel final.
     this.add
       .image(
         985,
